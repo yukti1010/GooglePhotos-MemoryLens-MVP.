@@ -69,7 +69,7 @@
     <button onclick="prevScreen()" class="px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-300 hover:bg-neutral-800 active:scale-95 transition cursor-pointer">
       ← Back
     </button>
-    <span class="text-neutral-500 text-[11px]">Use tabs or screen buttons</span>
+    <span class="text-neutral-500 text-[11px]">Click buttons inside screen</span>
     <button onclick="nextScreen()" class="px-3 py-1.5 rounded-xl bg-blue-600 font-semibold text-white hover:bg-blue-500 active:scale-95 transition cursor-pointer">
       Next →
     </button>
@@ -81,7 +81,7 @@
       1: { file: 'Screen1.html', label: 'Step 1 · Memory Search', defaultTab: 'tab-photos' },
       2: { file: 'Screen2.html', label: 'Step 2 · Parsing Story', defaultTab: 'tab-photos' },
       3: { file: 'Screen3.html', label: 'Step 3 · Sensory Clarification', defaultTab: 'tab-memories' },
-      4: { file: 'Screen4.html', label: 'Step 4 · Ranked Candidates', defaultTab: 'tab-library' },
+      4: { file: 'Screen4.html', label: 'Step 4 · Candidate Moments', defaultTab: 'tab-library' },
       5: { file: 'Screen5.html', label: 'Step 5 · Verified Memory', defaultTab: 'tab-photos' }
     };
 
@@ -128,30 +128,119 @@
     frame.onload = function() {
       try {
         const doc = frame.contentDocument || frame.contentWindow.document;
+
+        // Hide inner duplicate bottom bars and make items interactive
         const style = doc.createElement('style');
         style.textContent = `
           ::-webkit-scrollbar { display: none !important; }
           * { -ms-overflow-style: none !important; scrollbar-width: none !important; }
-          body { padding-bottom: 60px !important; }
+          body { padding-bottom: 70px !important; }
           footer, nav[class*="bottom"], [class*="fixed bottom"] { display: none !important; }
+          button, a, [role="button"], div[class*="cursor-pointer"], .cursor-pointer { cursor: pointer !important; }
         `;
         doc.head.appendChild(style);
 
+        // Click handler matching Stitch UI buttons
         doc.addEventListener('click', function(e) {
-          const btn = e.target.closest('button, a, [role="button"], div[class*="cursor-pointer"]');
-          if (!btn) return;
-          const txt = (btn.innerText || btn.textContent || '').trim().toLowerCase();
+          const target = e.target.closest('button, a, [role="button"], div[class*="rounded-"], span[class*="rounded-"]');
+          if (!target) return;
 
-          if (txt.includes('find this memory')) {
-            e.preventDefault(); e.stopPropagation(); setScreen(2, 'tab-photos');
-          } else if (txt.includes('next') || txt.includes('sonoma vineyard')) {
-            e.preventDefault(); e.stopPropagation(); setScreen(3, 'tab-memories');
-          } else if (txt.includes('view all 18') || txt.includes('ranked')) {
-            e.preventDefault(); e.stopPropagation(); setScreen(4, 'tab-library');
-          } else if (txt.includes('describe another memory')) {
-            e.preventDefault(); e.stopPropagation(); setScreen(1, 'tab-photos');
+          const text = (target.innerText || target.textContent || '').trim().toLowerCase();
+          const aria = (target.getAttribute('aria-label') || '').toLowerCase();
+
+          // Screen 1 triggers -> Go to Screen 2
+          if (currentStep === 1) {
+            if (
+              text.includes('find this memory') || 
+              text.includes('sonoma') || 
+              text.includes('clara') || 
+              text.includes('dancing') || 
+              text.includes('spilled gelato') || 
+              text.includes('yellow camper') || 
+              text.includes('rainy coffee') || 
+              target.id === 'find-memory-btn' ||
+              aria.includes('search') ||
+              aria.includes('voice')
+            ) {
+              e.preventDefault(); e.stopPropagation();
+              setScreen(2, 'tab-photos');
+              return;
+            }
           }
+
+          // Screen 2 triggers -> Go to Screen 3
+          if (currentStep === 2) {
+            if (
+              text.includes('help me find it') || 
+              text.includes('show all 142') || 
+              text.includes('candidate visual pool') || 
+              text.includes('142 candidates') || 
+              text.includes('year') || 
+              text.includes("friend's name") || 
+              text.includes('outdoor vs indoor')
+            ) {
+              e.preventDefault(); e.stopPropagation();
+              setScreen(3, 'tab-memories');
+              return;
+            }
+          }
+
+          // Screen 3 triggers -> Go to Screen 4
+          if (currentStep === 3) {
+            if (
+              text.includes('sonoma') || 
+              text.includes('vineyard') || 
+              text.includes('clara') || 
+              text.includes('maya') || 
+              text.includes('banquet') || 
+              text.includes('outdoor') || 
+              text.includes('golden hour') || 
+              text.includes('select') || 
+              text.includes('confirm')
+            ) {
+              e.preventDefault(); e.stopPropagation();
+              setScreen(4, 'tab-library');
+              return;
+            }
+          }
+
+          // Screen 4 triggers -> Go to Screen 5
+          if (currentStep === 4) {
+            if (
+              text.includes('view all') || 
+              text.includes('moment') || 
+              text.includes('verify') || 
+              text.includes('sonoma') || 
+              text.includes('wedding') || 
+              target.tagName === 'IMG'
+            ) {
+              e.preventDefault(); e.stopPropagation();
+              setScreen(5, 'tab-photos');
+              return;
+            }
+          }
+
+          // Screen 5 triggers -> Back to Screen 1
+          if (currentStep === 5) {
+            if (
+              text.includes('search another memory') || 
+              text.includes('back to candidates') || 
+              text.includes('new search') || 
+              target.id === 'new-search-cta'
+            ) {
+              e.preventDefault(); e.stopPropagation();
+              setScreen(1, 'tab-photos');
+              return;
+            }
+          }
+
+          // Inner Bottom Tabs
+          if (text.includes('photos')) setScreen(1, 'tab-photos');
+          else if (text.includes('memories')) setScreen(3, 'tab-memories');
+          else if (text.includes('library')) setScreen(4, 'tab-library');
+          else if (text.includes('search')) setScreen(1, 'tab-search');
         }, true);
+
       } catch (err) {
         console.warn('Iframe setup note:', err);
       }
