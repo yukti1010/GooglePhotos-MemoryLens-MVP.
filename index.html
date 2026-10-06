@@ -129,7 +129,6 @@
       try {
         const doc = frame.contentDocument || frame.contentWindow.document;
 
-        // Hide inner duplicate bottom bars and make items interactive
         const style = doc.createElement('style');
         style.textContent = `
           ::-webkit-scrollbar { display: none !important; }
@@ -140,15 +139,14 @@
         `;
         doc.head.appendChild(style);
 
-        // Click handler matching Stitch UI buttons
         doc.addEventListener('click', function(e) {
-          const target = e.target.closest('button, a, [role="button"], div[class*="rounded-"], span[class*="rounded-"]');
+          const target = e.target.closest('button, a, [role="button"], div[class*="rounded-"], span[class*="rounded-"], img');
           if (!target) return;
 
           const text = (target.innerText || target.textContent || '').trim().toLowerCase();
           const aria = (target.getAttribute('aria-label') || '').toLowerCase();
 
-          // Screen 1 triggers -> Go to Screen 2
+          // Screen 1 -> Screen 2
           if (currentStep === 1) {
             if (
               text.includes('find this memory') || 
@@ -158,9 +156,10 @@
               text.includes('spilled gelato') || 
               text.includes('yellow camper') || 
               text.includes('rainy coffee') || 
-              target.id === 'find-memory-btn' ||
+              text.includes('memory') ||
               aria.includes('search') ||
-              aria.includes('voice')
+              aria.includes('voice') ||
+              target.id === 'find-memory-btn'
             ) {
               e.preventDefault(); e.stopPropagation();
               setScreen(2, 'tab-photos');
@@ -168,13 +167,16 @@
             }
           }
 
-          // Screen 2 triggers -> Go to Screen 3
+          // Screen 2 -> Screen 3
           if (currentStep === 2) {
             if (
               text.includes('help me find it') || 
               text.includes('show all 142') || 
               text.includes('candidate visual pool') || 
               text.includes('142 candidates') || 
+              text.includes('candidates') || 
+              text.includes('narrow down') ||
+              text.includes('next') ||
               text.includes('year') || 
               text.includes("friend's name") || 
               text.includes('outdoor vs indoor')
@@ -185,7 +187,7 @@
             }
           }
 
-          // Screen 3 triggers -> Go to Screen 4
+          // Screen 3 -> Screen 4
           if (currentStep === 3) {
             if (
               text.includes('sonoma') || 
@@ -196,7 +198,9 @@
               text.includes('outdoor') || 
               text.includes('golden hour') || 
               text.includes('select') || 
-              text.includes('confirm')
+              text.includes('confirm') ||
+              text.includes('candidates') ||
+              text.includes('yes')
             ) {
               e.preventDefault(); e.stopPropagation();
               setScreen(4, 'tab-library');
@@ -204,14 +208,15 @@
             }
           }
 
-          // Screen 4 triggers -> Go to Screen 5
+          // Screen 4 -> Screen 5
           if (currentStep === 4) {
             if (
+              text.includes('view memory') || 
+              text.includes('inspect') || 
               text.includes('view all') || 
-              text.includes('moment') || 
-              text.includes('verify') || 
-              text.includes('sonoma') || 
-              text.includes('wedding') || 
+              text.includes('top result') || 
+              text.includes('garden gala') || 
+              text.includes('june 18') || 
               target.tagName === 'IMG'
             ) {
               e.preventDefault(); e.stopPropagation();
@@ -220,12 +225,13 @@
             }
           }
 
-          // Screen 5 triggers -> Back to Screen 1
+          // Screen 5 -> Reset back to Screen 1
           if (currentStep === 5) {
             if (
               text.includes('search another memory') || 
               text.includes('back to candidates') || 
               text.includes('new search') || 
+              text.includes('another memory') ||
               target.id === 'new-search-cta'
             ) {
               e.preventDefault(); e.stopPropagation();
