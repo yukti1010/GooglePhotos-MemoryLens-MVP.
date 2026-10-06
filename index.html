@@ -31,26 +31,26 @@
   <header class="w-full max-w-[360px] flex items-center justify-between pb-2.5 px-1">
     <div>
       <h1 class="text-xs font-bold tracking-wider uppercase text-blue-400">MemoryLens AI</h1>
-      <p id="screen-label" class="text-[11px] text-neutral-400">Step 1 · Memory Search</p>
+      <p id="screen-label" class="text-[11px] text-neutral-400">Step 3 · Sensory Clarification</p>
     </div>
     <nav class="flex gap-1 bg-neutral-900 p-1 rounded-full border border-neutral-800" aria-label="Step Navigation">
-      <button onclick="setScreen(1, 'tab-photos')" id="pill-1" class="w-6 h-6 text-xs rounded-full font-bold transition bg-blue-600 text-white cursor-pointer">1</button>
+      <button onclick="setScreen(1, 'tab-photos')" id="pill-1" class="w-6 h-6 text-xs rounded-full font-bold transition text-neutral-400 hover:text-white cursor-pointer">1</button>
       <button onclick="setScreen(2, 'tab-photos')" id="pill-2" class="w-6 h-6 text-xs rounded-full font-medium transition text-neutral-400 hover:text-white cursor-pointer">2</button>
-      <button onclick="setScreen(3, 'tab-memories')" id="pill-3" class="w-6 h-6 text-xs rounded-full font-medium transition text-neutral-400 hover:text-white cursor-pointer">3</button>
+      <button onclick="setScreen(3, 'tab-memories')" id="pill-3" class="w-6 h-6 text-xs rounded-full font-bold transition bg-blue-600 text-white cursor-pointer">3</button>
       <button onclick="setScreen(4, 'tab-library')" id="pill-4" class="w-6 h-6 text-xs rounded-full font-medium transition text-neutral-400 hover:text-white cursor-pointer">4</button>
       <button onclick="setScreen(5, 'tab-photos')" id="pill-5" class="w-6 h-6 text-xs rounded-full font-medium transition text-neutral-400 hover:text-white cursor-pointer">5</button>
     </nav>
   </header>
 
   <main class="device-shell">
-    <iframe id="stitch-frame" src="Screen1.html" class="w-full h-full border-none bg-[#f8f9ff]" title="Screen Viewer"></iframe>
+    <iframe id="stitch-frame" src="Screen3.html" class="w-full h-full border-none bg-[#f8f9ff]" title="Screen Viewer"></iframe>
 
     <div style="z-index: 99999;" class="absolute bottom-0 left-0 right-0 h-14 bg-white/95 backdrop-blur-md border-t border-neutral-200 flex items-center justify-around px-2 text-neutral-500 shadow-lg">
-      <button onclick="setScreen(1, 'tab-photos')" id="tab-photos" class="flex flex-col items-center justify-center flex-1 h-full text-blue-600 font-bold transition active:scale-95 cursor-pointer">
+      <button onclick="setScreen(1, 'tab-photos')" id="tab-photos" class="flex flex-col items-center justify-center flex-1 h-full text-neutral-400 hover:text-neutral-700 transition active:scale-95 cursor-pointer">
         <span class="material-symbols-outlined text-[20px]">photo_library</span>
         <span class="text-[9px] font-semibold mt-0.5">Photos</span>
       </button>
-      <button onclick="setScreen(3, 'tab-memories')" id="tab-memories" class="flex flex-col items-center justify-center flex-1 h-full text-neutral-400 hover:text-neutral-700 transition active:scale-95 cursor-pointer">
+      <button onclick="setScreen(3, 'tab-memories')" id="tab-memories" class="flex flex-col items-center justify-center flex-1 h-full text-blue-600 font-bold transition active:scale-95 cursor-pointer">
         <span class="material-symbols-outlined text-[20px]">filter_vintage</span>
         <span class="text-[9px] font-semibold mt-0.5">Memories</span>
       </button>
@@ -76,7 +76,7 @@
   </footer>
 
   <script>
-    let currentStep = 1;
+    let currentStep = 3;
     const screens = {
       1: { file: 'Screen1.html', label: 'Step 1 · Memory Search', defaultTab: 'tab-photos' },
       2: { file: 'Screen2.html', label: 'Step 2 · Parsing Story', defaultTab: 'tab-photos' },
@@ -153,9 +153,10 @@
               text.includes('sonoma') || 
               text.includes('clara') || 
               text.includes('dancing') || 
-              text.includes('spilled gelato') || 
+              text.includes('spilled') || 
+              text.includes('gelato') || 
               text.includes('yellow camper') || 
-              text.includes('rainy coffee') || 
+              text.includes('rainy') || 
               text.includes('memory') ||
               aria.includes('search') ||
               aria.includes('voice') ||
@@ -171,11 +172,10 @@
           if (currentStep === 2) {
             if (
               text.includes('help me find it') || 
-              text.includes('show all 142') || 
-              text.includes('candidate visual pool') || 
-              text.includes('142 candidates') || 
-              text.includes('candidates') || 
-              text.includes('narrow down') ||
+              text.includes('show all') || 
+              text.includes('candidate') || 
+              text.includes('142') || 
+              text.includes('narrow') || 
               text.includes('next') ||
               text.includes('year') || 
               text.includes("friend's name") || 
@@ -187,20 +187,20 @@
             }
           }
 
-          // Screen 3 -> Screen 4
+          // Screen 3 -> Screen 4 (Matches "View 6 Ranked Memories", candidate photos, or precision cards)
           if (currentStep === 3) {
             if (
-              text.includes('sonoma') || 
-              text.includes('vineyard') || 
-              text.includes('clara') || 
-              text.includes('maya') || 
-              text.includes('banquet') || 
-              text.includes('outdoor') || 
-              text.includes('golden hour') || 
-              text.includes('select') || 
-              text.includes('confirm') ||
-              text.includes('candidates') ||
-              text.includes('yes')
+              text.includes('view') || 
+              text.includes('ranked') || 
+              text.includes('memories') || 
+              text.includes('precision') || 
+              text.includes('narrowed') || 
+              text.includes('questions') || 
+              text.includes('wedding') || 
+              text.includes('dress') || 
+              text.includes('+3 more') || 
+              target.tagName === 'BUTTON' ||
+              target.tagName === 'IMG'
             ) {
               e.preventDefault(); e.stopPropagation();
               setScreen(4, 'tab-library');
@@ -217,6 +217,7 @@
               text.includes('top result') || 
               text.includes('garden gala') || 
               text.includes('june 18') || 
+              text.includes('confirm') ||
               target.tagName === 'IMG'
             ) {
               e.preventDefault(); e.stopPropagation();
@@ -225,7 +226,7 @@
             }
           }
 
-          // Screen 5 -> Reset back to Screen 1
+          // Screen 5 -> Screen 1
           if (currentStep === 5) {
             if (
               text.includes('search another memory') || 
@@ -240,7 +241,7 @@
             }
           }
 
-          // Inner Bottom Tabs
+          // Bottom Navigation inside screens
           if (text.includes('photos')) setScreen(1, 'tab-photos');
           else if (text.includes('memories')) setScreen(3, 'tab-memories');
           else if (text.includes('library')) setScreen(4, 'tab-library');
