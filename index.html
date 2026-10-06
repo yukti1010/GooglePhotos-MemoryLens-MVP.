@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Google Photos — MemoryLens AI MVP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <style>
+    .device-shell {
+      width: 360px;
+      height: 720px;
+      border-radius: 36px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 8px #1f2937;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+      background: #ffffff;
+    }
+    @media (max-width: 400px) {
+      .device-shell {
+        width: 100vw;
+        height: 100dvh;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body class="bg-neutral-950 text-neutral-100 flex flex-col items-center justify-center min-h-screen py-4 px-2 font-sans select-none overflow-y-auto">
+  <header class="w-full max-w-[360px] flex items-center justify-between pb-2.5 px-1">
+    <div>
+      <h1 class="text-xs font-bold tracking-wider uppercase text-blue-400">MemoryLens AI</h1>
+      <p id="screen-label" class="text-[11px] text-neutral-400">Step 1 · Memory Search</p>
+    </div>
+    <nav class="flex gap-1 bg-neutral-900 p-1 rounded-full border border-neutral-800" aria-label="Step Navigation">
+      <button onclick="setScreen(1, 'tab-photos')" id="pill-1" class="w-6 h-6 text-xs rounded-full font-bold transition bg-blue-600 text-white cursor-pointer">1</button>
+      <button onclick="setScreen(2, 'tab-photos')" id="pill-2" class="w-6 h-6 text-xs rounded-full font-medium transition text-neutral-400 hover:text-white cursor-pointer">2</button>
+      <button onclick="setScreen(3, 'tab-memories')" id="pill-3" class="w-6 h-6 text-xs rounded-full font-medium transition text-neutral-400 hover:text-white cursor-pointer">3</button>
+      <button onclick="setScreen(4, 'tab-library')" id="pill-4" class="w-6 h-6 text-xs rounded-full font-medium transition text-neutral-400 hover:text-white cursor-pointer">4</button>
+      <button onclick="setScreen(5, 'tab-photos')" id="pill-5" class="w-6 h-6 text-xs rounded-full font-medium transition text-neutral-400 hover:text-white cursor-pointer">5</button>
+    </nav>
+  </header>
+
+  <main class="device-shell">
+    <iframe id="stitch-frame" src="Screen1.html" class="w-full h-full border-none bg-[#f8f9ff]" title="Screen Viewer"></iframe>
+
+    <div style="z-index: 99999;" class="absolute bottom-0 left-0 right-0 h-14 bg-white/95 backdrop-blur-md border-t border-neutral-200 flex items-center justify-around px-2 text-neutral-500 shadow-lg">
+      <button onclick="setScreen(1, 'tab-photos')" id="tab-photos" class="flex flex-col items-center justify-center flex-1 h-full text-blue-600 font-bold transition active:scale-95 cursor-pointer">
+        <span class="material-symbols-outlined text-[20px]">photo_library</span>
+        <span class="text-[9px] font-semibold mt-0.5">Photos</span>
+      </button>
+      <button onclick="setScreen(3, 'tab-memories')" id="tab-memories" class="flex flex-col items-center justify-center flex-1 h-full text-neutral-400 hover:text-neutral-700 transition active:scale-95 cursor-pointer">
+        <span class="material-symbols-outlined text-[20px]">filter_vintage</span>
+        <span class="text-[9px] font-semibold mt-0.5">Memories</span>
+      </button>
+      <button onclick="setScreen(4, 'tab-library')" id="tab-library" class="flex flex-col items-center justify-center flex-1 h-full text-neutral-400 hover:text-neutral-700 transition active:scale-95 cursor-pointer">
+        <span class="material-symbols-outlined text-[20px]">folder_shared</span>
+        <span class="text-[9px] font-semibold mt-0.5">Library</span>
+      </button>
+      <button onclick="setScreen(1, 'tab-search')" id="tab-search" class="flex flex-col items-center justify-center flex-1 h-full text-neutral-400 hover:text-neutral-700 transition active:scale-95 cursor-pointer">
+        <span class="material-symbols-outlined text-[20px]">search</span>
+        <span class="text-[9px] font-semibold mt-0.5">Search</span>
+      </button>
+    </div>
+  </main>
+
+  <footer class="w-full max-w-[360px] flex items-center justify-between pt-2.5 px-1 text-xs">
+    <button onclick="prevScreen()" class="px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-300 hover:bg-neutral-800 active:scale-95 transition cursor-pointer">
+      ← Back
+    </button>
+    <span class="text-neutral-500 text-[11px]">Use tabs or screen buttons</span>
+    <button onclick="nextScreen()" class="px-3 py-1.5 rounded-xl bg-blue-600 font-semibold text-white hover:bg-blue-500 active:scale-95 transition cursor-pointer">
+      Next →
+    </button>
+  </footer>
+
+  <script>
+    let currentStep = 1;
+    const screens = {
+      1: { file: 'Screen1.html', label: 'Step 1 · Memory Search', defaultTab: 'tab-photos' },
+      2: { file: 'Screen2.html', label: 'Step 2 · Parsing Story', defaultTab: 'tab-photos' },
+      3: { file: 'Screen3.html', label: 'Step 3 · Sensory Clarification', defaultTab: 'tab-memories' },
+      4: { file: 'Screen4.html', label: 'Step 4 · Ranked Candidates', defaultTab: 'tab-library' },
+      5: { file: 'Screen5.html', label: 'Step 5 · Verified Memory', defaultTab: 'tab-photos' }
+    };
+
+    function setScreen(num, tabId = null) {
+      if (num < 1 || num > 5) return;
+      currentStep = num;
+      const iframe = document.getElementById('stitch-frame');
+      iframe.src = screens[num].file;
+      document.getElementById('screen-label').textContent = screens[num].label;
+
+      for (let i = 1; i <= 5; i++) {
+        const pill = document.getElementById(`pill-${i}`);
+        if (pill) {
+          pill.className = (i === num)
+            ? "w-6 h-6 text-xs rounded-full font-bold transition bg-blue-600 text-white cursor-pointer"
+            : "w-6 h-6 text-xs rounded-full font-medium transition text-neutral-400 hover:text-white cursor-pointer";
+        }
+      }
+
+      const allTabs = ['tab-photos', 'tab-memories', 'tab-library', 'tab-search'];
+      allTabs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.className = "flex flex-col items-center justify-center flex-1 h-full text-neutral-400 hover:text-neutral-700 transition active:scale-95 cursor-pointer";
+        }
+      });
+
+      const targetTab = tabId || screens[num].defaultTab;
+      const activeEl = document.getElementById(targetTab);
+      if (activeEl) {
+        activeEl.className = "flex flex-col items-center justify-center flex-1 h-full text-blue-600 font-bold transition active:scale-95 cursor-pointer";
+      }
+    }
+
+    function nextScreen() {
+      if (currentStep < 5) setScreen(currentStep + 1);
+    }
+
+    function prevScreen() {
+      if (currentStep > 1) setScreen(currentStep - 1);
+    }
+
+    const frame = document.getElementById('stitch-frame');
+    frame.onload = function() {
+      try {
+        const doc = frame.contentDocument || frame.contentWindow.document;
+        const style = doc.createElement('style');
+        style.textContent = `
+          ::-webkit-scrollbar { display: none !important; }
+          * { -ms-overflow-style: none !important; scrollbar-width: none !important; }
+          body { padding-bottom: 60px !important; }
+          footer, nav[class*="bottom"], [class*="fixed bottom"] { display: none !important; }
+        `;
+        doc.head.appendChild(style);
+
+        doc.addEventListener('click', function(e) {
+          const btn = e.target.closest('button, a, [role="button"], div[class*="cursor-pointer"]');
+          if (!btn) return;
+          const txt = (btn.innerText || btn.textContent || '').trim().toLowerCase();
+
+          if (txt.includes('find this memory')) {
+            e.preventDefault(); e.stopPropagation(); setScreen(2, 'tab-photos');
+          } else if (txt.includes('next') || txt.includes('sonoma vineyard')) {
+            e.preventDefault(); e.stopPropagation(); setScreen(3, 'tab-memories');
+          } else if (txt.includes('view all 18') || txt.includes('ranked')) {
+            e.preventDefault(); e.stopPropagation(); setScreen(4, 'tab-library');
+          } else if (txt.includes('describe another memory')) {
+            e.preventDefault(); e.stopPropagation(); setScreen(1, 'tab-photos');
+          }
+        }, true);
+      } catch (err) {
+        console.warn('Iframe setup note:', err);
+      }
+    };
+  </script>
+</body>
+</html>
